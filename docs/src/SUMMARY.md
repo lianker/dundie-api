@@ -90,9 +90,9 @@
 
 # Front-end
 
-<!-- - [Integrando Front-end](./48_front_end.md) -->
 - [Websockets](./49_websockets.md)
 - [Cors Middleware](./50_cors_middleware.md)
+- [Session Auth no Front-end](./51_front_end_session_auth.md)
 
 ---
 
