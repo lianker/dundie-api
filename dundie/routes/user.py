@@ -5,8 +5,8 @@ from fastapi.exceptions import HTTPException
 from sqlmodel import Session, select
 
 from dundie.db import ActiveSession
-from dundie.models.user import User, UserRequest, UserResponse, UserProfilePatchRequest
-from dundie.auth import SuperUser, AuthenticatedUser
+from dundie.models.user import User, UserRequest, UserResponse, UserProfilePatchRequest, UserPasswordPatchRequest
+from dundie.auth import SuperUser, AuthenticatedUser, CanChangeUserPassword
 from sqlalchemy.exc import IntegrityError
 
 router = APIRouter()
@@ -70,3 +70,16 @@ async def update_user(
     session.refresh(user)
     return user
 
+@router.post("/{username}/password/", response_model=UserResponse)
+async def change_password(
+    *,
+    session: Session = ActiveSession,
+    patch_data: UserPasswordPatchRequest,
+    user: User = CanChangeUserPassword
+):
+    # import ipdb; ipdb.set_trace()
+    user.password = patch_data.hashed_password  # pyright: ignore
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    return user
