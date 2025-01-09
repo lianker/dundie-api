@@ -6,6 +6,7 @@ from sqlmodel import Session, select
 
 from dundie.db import ActiveSession
 from dundie.models.user import User, UserRequest, UserResponse
+from dundie.auth import SuperUser
 
 router = APIRouter()
 
@@ -29,7 +30,7 @@ async def get_user_by_username(
     return user
 
 
-@router.post("/", response_model=UserResponse, status_code=201)
+@router.post("/", response_model=UserResponse, status_code=201, dependencies=[SuperUser])
 async def create_user(*, session: Session = ActiveSession, user: UserRequest):
     """Creates new user"""
     db_user = User.from_orm(user)  # transform UserRequest in User
