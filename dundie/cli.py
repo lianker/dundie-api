@@ -2,6 +2,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 from sqlmodel import Session, select
+from typing import Optional
 
 from .config import settings
 from .db import engine
@@ -55,7 +56,7 @@ def create_user(
     email: str,
     password: str,
     dept: str,
-    username: str | None = None,
+    username: Optional[str]=None,
     currency: str = "USD",
 ):
     """Create user"""
