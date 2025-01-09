@@ -5,8 +5,8 @@ from fastapi.exceptions import HTTPException
 from sqlmodel import Session, select
 
 from dundie.db import ActiveSession
-from dundie.models.user import User, UserRequest, UserResponse
-from dundie.auth import SuperUser
+from dundie.models.user import User, UserRequest, UserResponse, UserProfilePatchRequest
+from dundie.auth import SuperUser, AuthenticatedUser
 from sqlalchemy.exc import IntegrityError
 
 router = APIRouter()
@@ -46,3 +46,27 @@ async def create_user(*, session: Session = ActiveSession, user: UserRequest):
 
     session.refresh(db_user)
     return db_user
+
+@router.patch("/{username}/", response_model=UserResponse)
+async def update_user(
+    *,
+    session: Session = ActiveSession,
+    patch_data: UserProfilePatchRequest,
+    current_user: User = AuthenticatedUser,
+    username: str
+):
+    user = session.exec(select(User).where(User.username == username)).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if user.id != current_user.id and not current_user.superuser:
+        raise HTTPException(status_code=403, detail="You can only update your own profile")
+
+    # Update
+    user.avatar = patch_data.avatar
+    user.bio = patch_data.bio
+
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    return user
+

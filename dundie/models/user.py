@@ -57,3 +57,7 @@ class UserRequest(BaseModel):
         if values.get("username") is None:
             values["username"] = generate_username(values["name"])
         return values
+
+class UserProfilePatchRequest(BaseModel):
+    avatar: Optional[str] = None
+    bio: Optional[str] = None
